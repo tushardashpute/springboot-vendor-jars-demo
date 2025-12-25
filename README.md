@@ -53,18 +53,15 @@ Business API
     curl -X POST "http://localhost:33333/api/write?name=test.txt&content=hello"
     curl http://localhost:33333/api/read/test.txt
 
-**Health**
-
-    curl http://localhost:33333/actuator/health
 
 **Sample Response**:
  
     [{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
 
 
-**undefined**
-  
-    {"status":"UP"}
+<img width="738" height="192" alt="image" src="https://github.com/user-attachments/assets/8988e297-1095-4f94-a156-16b13c0ad9fd" />
+
+<img width="1228" height="467" alt="image" src="https://github.com/user-attachments/assets/0ea434af-b290-4eb8-926a-84f952b4c174" />
 
 
 ## 🔍 Verify Vendor JAR Magic ✨
