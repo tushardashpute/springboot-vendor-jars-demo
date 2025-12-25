@@ -1,141 +1,243 @@
-# Spring Boot + Vendor JARs Demo 🚀
+# Spring Boot + Vendor JARs (Actimize/PNC JFrog Demo) 🚀
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-green.svg)](https://spring.io)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://hub.docker.com/r/tushardashpute/springboot-vendor-demo)
 [![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://adoptium.net)
 [![Port 33333](https://img.shields.io/badge/Port-33333-yellow.svg)](http://localhost:33333)
 
-**Production demo: Spring Boot with vendor JARs in `lib/` (no Maven Central deps)**.
+**Production demo for Actimize JARs NOT in PNC JFrog** - **System scope compile** + **Docker `lib/` runtime**.
 
-## 🎯 What This Solves
+## 🎯 PNC Actimize Use Case
 
-❌ Maven Central blocked (air-gapped/enterprise)
-❌ Vendor supplies JARs out-of-band
-✅ lib/ folder + JarLauncher classpath
-✅ Dockerized + Kubernetes-ready
+```
+❌ Actimize JARs missing from PNC JFrog
+❌ Air-gapped Maven builds fail
+✅ System scope in pom.xml (compile from lib/)
+✅ Docker lib/ folder (runtime redundancy)
+✅ JarLauncher loads app.jar + lib/* 
+```
 
-text
+**Demo uses** `commons-io-2.15.1.jar` **(exact same pattern as Actimize)**.
 
-## 📁 Structure
+## 📁 Complete Structure
 
-├── Dockerfile # JarLauncher magic ✨
+```
+├── Dockerfile                    # JarLauncher + lib/*
 ├── lib/
-│ └── commons-io-2.15.1.jar # Vendor JAR (501KB)
+│   └── commons-io-2.15.1.jar     # Vendor JAR (501KB) ✅
+├── pom.xml                       # System scope dep ✅
 ├── src/main/java/org/example/
-│ ├── CustomerController.java # Business API
-│ └── HelloController.java # File I/O demo
-├── target/*.jar # Spring Boot fat JAR
-└── pom.xml # No vendor deps!
+│   ├── CustomerController.java   # Business API
+│   └── VendorController.java     # Actimize test
+├── target/*.jar                  # Fat JAR w/ system scope
+└── README.md
+```
 
-text
+## 🚀 Quick Start (5 Minutes)
 
-## 🚀 Quick Start (5 mins)
-
-### Clone + Run
+### 1. Clone + Vendor JAR
+```bash
 git clone https://github.com/tushardashpute/springboot-vendor-jars-demo.git
 cd springboot-vendor-jars-demo
 
-Build Spring Boot
-./mvnw clean package -DskipTests
+# Add vendor JAR (like Actimize JARs from CD)
+mkdir -p lib
+curl -L -o lib/commons-io-2.15.1.jar \
+  https://repo1.maven.org/maven2/commons-io/commons-io/2.15.1/commons-io-2.15.1.jar
+```
 
-Docker
+### 2. System Scope Build (No JFrog!)
+```bash
+./mvnw clean package -DskipTests
+# Compiles from lib/commons-io-2.15.1.jar ✅
+# No JFrog/maven-central needed ✅
+```
+
+### 3. Docker Build & Run
+```bash
 docker build -t springboot-vendor-demo:latest .
 docker run -d -p 33333:33333 --name demo springboot-vendor-demo:latest
+```
 
-text
+## 🧪 Test Endpoints (Port 33333)
 
-### Test Endpoints
-Business API
+### Business API
+```bash
 curl http://localhost:33333/listallcustomers
+# [{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}] ✅
+```
 
-File I/O (vendor JAR ready)
-curl -X POST "http://localhost:33333/api/write?name=test.txt&content=hello"
-curl http://localhost:33333/api/read/test.txt
+### Actimize/Vendor JAR Test
+```bash
+curl http://localhost:33333/actimize/test
+# "✅ Actimize JAR loaded via system scope + Docker lib/" ✅
+```
 
-Health
+### Health Check
+```bash
 curl http://localhost:33333/actuator/health
+# {"status":"UP"} ✅
+```
 
-text
+## 🔍 Verify Vendor JAR Loading ✨
 
-**Sample**:
-[{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
-{"status":"UP"}
+```bash
+# Container structure
+docker exec demo ls -la /app/
+# app.jar (17MB) + lib/ (501KB) ✅
 
-text
+# Vendor JAR contents
+docker exec demo ls -la /app/lib/
+# commons-io-2.15.1.jar ✅
 
-## 🔍 Verify Vendor JAR Magic ✨
+# JarLauncher classpath
+docker exec demo ps aux | grep JarLauncher
+# -cp '/app/app.jar:/app/lib/*' ✅
 
-docker exec demo ls -la /app/lib/ # commons-io-2.15.1.jar ✅
-docker exec demo ps aux | grep JarLauncher # -cp app.jar:lib/* ✅
-docker exec demo java -cp /app/lib/* FileUtils # No ClassNotFound ✅
+# Test vendor class (no ClassNotFound)
+docker exec demo java -cp /app/lib/* org.apache.commons.io.FileUtils ✅
+```
 
-text
+## 🏗️ System Scope + Docker Pattern
 
-## 🏗️ Why JarLauncher?
+### 1. **pom.xml** (Compile Time - No JFrog)
+```xml
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>2.15.1</version>
+    <scope>system</scope>
+    <systemPath>${project.basedir}/lib/commons-io-2.15.1.jar</systemPath>
+</dependency>
+<!-- Real Actimize: com.nice.actimize:actimize-core:8.5.0 -->
+```
 
-| ❌ Wrong | ✅ Correct |
-|---------|-----------|
-| `java -jar app.jar` | Ignores `lib/*` |
-| `java -cp app.jar Main` | Ignores `BOOT-INF/*` |
-| **`JarLauncher -cp app.jar:lib/*`** | **Loads EVERYTHING** |
+### 2. **Dockerfile** (Runtime Redundancy)
+```dockerfile
+FROM eclipse-temurin:17-jre
+WORKDIR /app
 
-app.jar:
-├── BOOT-INF/classes/ (your code)
-└── BOOT-INF/lib/* (Spring Boot)
+# Maven fat JAR (system scope baked in)
+COPY target/*.jar /app/app.jar
 
-lib/* (vendor JARs)
+# Docker lib/ (extra safety)
+COPY lib/ /app/lib/
 
-text
+EXPOSE 33333
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -cp '/app/app.jar:/app/lib/*' org.springframework.boot.loader.JarLauncher"]
+```
 
-## ☁️ Kubernetes (kind)
+### 3. **Why Both?**
+```
+Maven: Compiles from lib/ (no JFrog needed)
+Docker: Copies lib/ again (runtime failsafe)
+JarLauncher: Loads app.jar + lib/* (everything works)
+```
 
+## 🏗️ Why JarLauncher? (Critical)
+
+| ❌ Fails | ✅ Works |
+|----------|---------|
+| `java -jar app.jar` | Ignores `/app/lib/*` |
+| `java -cp app.jar Main` | Ignores `BOOT-INF/lib/*` |
+| **`JarLauncher -cp app.jar:lib/*`** | **Loads ALL JARs** |
+
+```
+Final Classpath:
+├── BOOT-INF/classes/          (app code)
+├── BOOT-INF/lib/*             (Spring Boot)
+├── lib/commons-io-2.15.1.jar  (Actimize/vendor)
+```
+
+## ☁️ Kubernetes Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: actimize-demo
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: demo
+        image: tushardashpute/springboot-vendor-demo:latest
+        ports:
+        - containerPort: 33333
+        env:
+        - name: JAVA_OPTS
+          value: "-Xms512m -Xmx2g -Djava.security.egd=file:/dev/./urandom"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: actimize-demo
+spec:
+  ports:
+  - port: 80
+    targetPort: 33333
+```
+
+```bash
 kind create cluster
 kind load docker-image springboot-vendor-demo:latest
-kubectl apply -f k8s/ # targetPort: 33333
-kubectl port-forward svc/demo 33333:80
+kubectl apply -f k8s/
+kubectl port-forward svc/actimize-demo 33333:80
+```
 
-text
+## 🛠️ Real Actimize Setup
 
-## 🛠️ Customize
+**Replace commons-io with Actimize**:
+```bash
+# 1. Get Actimize JARs from vendor CD
+cp /mnt/cdrom/lib/actimize-core-8.5.0.jar lib/
 
-**Add your vendor JAR**:
-cp /path/to/myvendor.jar lib/
-docker build -t my-app .
+# 2. Update pom.xml
+# <groupId>com.nice.actimize</groupId>
+# <artifactId>actimize-core</artifactId>
+# <version>8.5.0</version>
+# <systemPath>${project.basedir}/lib/actimize-core-8.5.0.jar</systemPath>
 
-text
+# 3. Build + deploy (same commands)
+./mvnw clean package && docker build . && docker run -p 33333:33333 .
+```
 
-**Multiple JARs**:
-lib/
-├── vendor1.jar
-├── vendor2.jar
-└── commons-io-2.15.1.jar
-
-JarLauncher loads ALL: -cp app.jar:lib/*
-text
-
-## 📊 Status
+## 📊 Production Status
 
 | Feature | ✅ Status |
 |---------|----------|
-| Vendor JARs | `lib/commons-io-2.15.1.jar` |
-| Docker | `tushardashpute/springboot-vendor-demo:latest` |
-| Port | `33333` |
-| Controllers | `CustomerController` + `HelloController` |
-| K8s Ready | `targetPort: 33333` |
+| **System Scope** | `lib/commons-io-2.15.1.jar` (no JFrog) |
+| **Docker Image** | `tushardashpute/springboot-vendor-demo:latest` |
+| **Port** | `33333` (custom) |
+| **Controllers** | `CustomerController` + `VendorController` |
+| **Classpath** | `app.jar:lib/*` (JarLauncher) |
+| **Kubernetes** | `targetPort: 33333` ready |
 
 ## 🧹 Cleanup
+```bash
 docker stop demo && docker rm demo
 docker rmi springboot-vendor-demo:latest
+kind delete cluster  # if testing k8s
+```
 
-text
+## 🎉 PNC Actimize Ready
 
-## 🎉 Use Cases
+```
+✅ Compiles without JFrog (system scope)
+✅ Docker runtime redundancy (lib/)
+✅ Multiple JARs supported
+✅ Kubernetes manifests ready
+✅ Production JVM tuning
+✅ Port 33333 support
+```
 
-- **Enterprise**: Vendor JARs not on Maven Central
-- **Air-gapped**: No internet for Maven
-- **Legacy**: Old proprietary JARs
-- **Compliance**: Approved JARs only
+**Demo replicates exact Actimize scenario** → **Copy `lib/actimize-*.jar`** → **Deploy**!
 
----
+***
 **⭐ Star if helpful!**  
-**Built by Tushar Dashpute** © 2025
+**Built for PNC Actimize + JFrog scenario** © 2025 Tushar Dashpute[1][2][3]
+
+[1](https://github.com/dimMaryanto93/k8s-nfs-springboot-upload)
+[2](https://img.shields.io/badge/Spring%20Boot-3.3.0-green.svg)
+[3](https://img.shields.io/badge/Docker-Ready-blue.svg)
