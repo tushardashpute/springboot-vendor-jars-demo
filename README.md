@@ -9,23 +9,25 @@
 
 ## 🎯 What This Solves
 
-    ❌ Maven Central blocked (air-gapped/enterprise)
-    ❌ Vendor supplies JARs out-of-band
-    ✅ lib/ folder + JarLauncher classpath
-    ✅ Dockerized + Kubernetes-ready
+❌ Maven Central blocked (air-gapped/enterprise)
+❌ Vendor supplies JARs out-of-band
+✅ lib/ folder + JarLauncher classpath
+✅ Dockerized + Kubernetes-ready
 
+text
 
 ## 📁 Structure
 
-    ├── Dockerfile # JarLauncher magic ✨
-    ├── lib/
-    │ └── commons-io-2.15.1.jar # Vendor JAR (501KB)
-    ├── src/main/java/org/example/
-    │ ├── CustomerController.java # Business API
-    │ └── HelloController.java # File I/O demo
-    ├── target/*.jar # Spring Boot fat JAR
-    └── pom.xml # No vendor deps!
+├── Dockerfile # JarLauncher magic ✨
+├── lib/
+│ └── commons-io-2.15.1.jar # Vendor JAR (501KB)
+├── src/main/java/org/example/
+│ ├── CustomerController.java # Business API
+│ └── HelloController.java # File I/O demo
+├── target/*.jar # Spring Boot fat JAR
+└── pom.xml # No vendor deps!
 
+text
 
 ## 🚀 Quick Start (5 mins)
 
@@ -33,42 +35,41 @@
 git clone https://github.com/tushardashpute/springboot-vendor-jars-demo.git
 cd springboot-vendor-jars-demo
 
-**Build Spring Boot**
-
+Build Spring Boot
 ./mvnw clean package -DskipTests
 
-**Docker**
-
+Docker
 docker build -t springboot-vendor-demo:latest .
 docker run -d -p 33333:33333 --name demo springboot-vendor-demo:latest
 
+text
 
 ### Test Endpoints
-
 Business API
-    curl http://localhost:33333/listallcustomers
+curl http://localhost:33333/listallcustomers
 
-**File I/O (vendor JAR ready)**
- 
-    curl -X POST "http://localhost:33333/api/write?name=test.txt&content=hello"
-    curl http://localhost:33333/api/read/test.txt
+File I/O (vendor JAR ready)
+curl -X POST "http://localhost:33333/api/write?name=test.txt&content=hello"
+curl http://localhost:33333/api/read/test.txt
 
+Health
+curl http://localhost:33333/actuator/health
 
-**Sample Response**:
- 
-    [{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
+text
 
+**Sample**:
+[{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
+{"status":"UP"}
 
-<img width="738" height="192" alt="image" src="https://github.com/user-attachments/assets/8988e297-1095-4f94-a156-16b13c0ad9fd" />
-
-<img width="1228" height="467" alt="image" src="https://github.com/user-attachments/assets/0ea434af-b290-4eb8-926a-84f952b4c174" />
-
+text
 
 ## 🔍 Verify Vendor JAR Magic ✨
 
-    docker exec demo ls -la /app/lib/ # commons-io-2.15.1.jar ✅
-    docker exec demo ps aux | grep JarLauncher # -cp app.jar:lib/* ✅
-    docker exec demo java -cp /app/lib/* FileUtils # No ClassNotFound ✅
+docker exec demo ls -la /app/lib/ # commons-io-2.15.1.jar ✅
+docker exec demo ps aux | grep JarLauncher # -cp app.jar:lib/* ✅
+docker exec demo java -cp /app/lib/* FileUtils # No ClassNotFound ✅
+
+text
 
 ## 🏗️ Why JarLauncher?
 
@@ -78,34 +79,39 @@ Business API
 | `java -cp app.jar Main` | Ignores `BOOT-INF/*` |
 | **`JarLauncher -cp app.jar:lib/*`** | **Loads EVERYTHING** |
 
-    app.jar:
-    ├── BOOT-INF/classes/ (your code)
-    └── BOOT-INF/lib/* (Spring Boot)
+app.jar:
+├── BOOT-INF/classes/ (your code)
+└── BOOT-INF/lib/* (Spring Boot)
 
 lib/* (vendor JARs)
 
+text
+
 ## ☁️ Kubernetes (kind)
 
-    kind create cluster
-    kind load docker-image springboot-vendor-demo:latest
-    kubectl apply -f k8s/ # targetPort: 33333
-    kubectl port-forward svc/demo 33333:80
+kind create cluster
+kind load docker-image springboot-vendor-demo:latest
+kubectl apply -f k8s/ # targetPort: 33333
+kubectl port-forward svc/demo 33333:80
+
+text
 
 ## 🛠️ Customize
 
 **Add your vendor JAR**:
+cp /path/to/myvendor.jar lib/
+docker build -t my-app .
 
-    cp /path/to/myvendor.jar lib/
-    docker build -t my-app .
+text
 
 **Multiple JARs**:
+lib/
+├── vendor1.jar
+├── vendor2.jar
+└── commons-io-2.15.1.jar
 
-    lib/
-    ├── vendor1.jar
-    ├── vendor2.jar
-    └── commons-io-2.15.1.jar
-
-**JarLauncher loads ALL**: `-cp app.jar:lib/*`
+JarLauncher loads ALL: -cp app.jar:lib/*
+text
 
 ## 📊 Status
 
@@ -118,9 +124,10 @@ lib/* (vendor JARs)
 | K8s Ready | `targetPort: 33333` |
 
 ## 🧹 Cleanup
+docker stop demo && docker rm demo
+docker rmi springboot-vendor-demo:latest
 
-    docker stop demo && docker rm demo
-    docker rmi springboot-vendor-demo:latest
+text
 
 ## 🎉 Use Cases
 
