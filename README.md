@@ -9,10 +9,10 @@
 
 ## 🎯 What This Solves
 
-❌ Maven Central blocked (air-gapped/enterprise)
-❌ Vendor supplies JARs out-of-band
-✅ lib/ folder + JarLauncher classpath
-✅ Dockerized + Kubernetes-ready
+    ❌ Maven Central blocked (air-gapped/enterprise)
+    ❌ Vendor supplies JARs out-of-band
+    ✅ lib/ folder + JarLauncher classpath
+    ✅ Dockerized + Kubernetes-ready
 
 
 ## 📁 Structure
@@ -33,31 +33,31 @@
 git clone https://github.com/tushardashpute/springboot-vendor-jars-demo.git
 cd springboot-vendor-jars-demo
 
-Build Spring Boot
+**Build Spring Boot**
 ./mvnw clean package -DskipTests
 
-Docker
+**Docker**
 docker build -t springboot-vendor-demo:latest .
 docker run -d -p 33333:33333 --name demo springboot-vendor-demo:latest
 
 
 ### Test Endpoints
 Business API
-curl http://localhost:33333/listallcustomers
+    curl http://localhost:33333/listallcustomers
 
-File I/O (vendor JAR ready)
-curl -X POST "http://localhost:33333/api/write?name=test.txt&content=hello"
-curl http://localhost:33333/api/read/test.txt
+**File I/O (vendor JAR ready)**
+    curl -X POST "http://localhost:33333/api/write?name=test.txt&content=hello"
+    curl http://localhost:33333/api/read/test.txt
 
-Health
-curl http://localhost:33333/actuator/health
+**Health**
+    curl http://localhost:33333/actuator/health
 
 **Sample Response**:
-[{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
+    [{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
 
-text
-undefined
-{"status":"UP"}
+
+**undefined**
+    {"status":"UP"}
 
 
 ## 🔍 Verify Vendor JAR Magic ✨
