@@ -57,8 +57,11 @@ curl http://localhost:33333/actuator/health
 
 text
 
-**Sample**:
+**Sample Response**:
 [{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
+
+text
+undefined
 {"status":"UP"}
 
 text
@@ -110,8 +113,8 @@ lib/
 ├── vendor2.jar
 └── commons-io-2.15.1.jar
 
-JarLauncher loads ALL: -cp app.jar:lib/*
 text
+**JarLauncher loads ALL**: `-cp app.jar:lib/*`
 
 ## 📊 Status
 
