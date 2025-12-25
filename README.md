@@ -14,20 +14,18 @@
 ✅ lib/ folder + JarLauncher classpath
 ✅ Dockerized + Kubernetes-ready
 
-text
 
 ## 📁 Structure
 
-├── Dockerfile # JarLauncher magic ✨
-├── lib/
-│ └── commons-io-2.15.1.jar # Vendor JAR (501KB)
-├── src/main/java/org/example/
-│ ├── CustomerController.java # Business API
-│ └── HelloController.java # File I/O demo
-├── target/*.jar # Spring Boot fat JAR
-└── pom.xml # No vendor deps!
+    ├── Dockerfile # JarLauncher magic ✨
+    ├── lib/
+    │ └── commons-io-2.15.1.jar # Vendor JAR (501KB)
+    ├── src/main/java/org/example/
+    │ ├── CustomerController.java # Business API
+    │ └── HelloController.java # File I/O demo
+    ├── target/*.jar # Spring Boot fat JAR
+    └── pom.xml # No vendor deps!
 
-text
 
 ## 🚀 Quick Start (5 mins)
 
@@ -42,7 +40,6 @@ Docker
 docker build -t springboot-vendor-demo:latest .
 docker run -d -p 33333:33333 --name demo springboot-vendor-demo:latest
 
-text
 
 ### Test Endpoints
 Business API
@@ -55,8 +52,6 @@ curl http://localhost:33333/api/read/test.txt
 Health
 curl http://localhost:33333/actuator/health
 
-text
-
 **Sample Response**:
 [{"name":"Tushar","id":"001","country":"INDIA","state":"AP","type":"retail"}]
 
@@ -64,15 +59,12 @@ text
 undefined
 {"status":"UP"}
 
-text
 
 ## 🔍 Verify Vendor JAR Magic ✨
 
 docker exec demo ls -la /app/lib/ # commons-io-2.15.1.jar ✅
 docker exec demo ps aux | grep JarLauncher # -cp app.jar:lib/* ✅
 docker exec demo java -cp /app/lib/* FileUtils # No ClassNotFound ✅
-
-text
 
 ## 🏗️ Why JarLauncher?
 
@@ -82,13 +74,11 @@ text
 | `java -cp app.jar Main` | Ignores `BOOT-INF/*` |
 | **`JarLauncher -cp app.jar:lib/*`** | **Loads EVERYTHING** |
 
-app.jar:
-├── BOOT-INF/classes/ (your code)
-└── BOOT-INF/lib/* (Spring Boot)
+    app.jar:
+    ├── BOOT-INF/classes/ (your code)
+    └── BOOT-INF/lib/* (Spring Boot)
 
 lib/* (vendor JARs)
-
-text
 
 ## ☁️ Kubernetes (kind)
 
@@ -97,15 +87,11 @@ kind load docker-image springboot-vendor-demo:latest
 kubectl apply -f k8s/ # targetPort: 33333
 kubectl port-forward svc/demo 33333:80
 
-text
-
 ## 🛠️ Customize
 
 **Add your vendor JAR**:
 cp /path/to/myvendor.jar lib/
 docker build -t my-app .
-
-text
 
 **Multiple JARs**:
 lib/
@@ -113,7 +99,6 @@ lib/
 ├── vendor2.jar
 └── commons-io-2.15.1.jar
 
-text
 **JarLauncher loads ALL**: `-cp app.jar:lib/*`
 
 ## 📊 Status
@@ -129,8 +114,6 @@ text
 ## 🧹 Cleanup
 docker stop demo && docker rm demo
 docker rmi springboot-vendor-demo:latest
-
-text
 
 ## 🎉 Use Cases
 
