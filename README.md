@@ -98,6 +98,8 @@ docker exec demo ps aux | grep JarLauncher
 docker exec demo java -cp /app/lib/* org.apache.commons.io.FileUtils ✅
 ```
 
+<img width="1727" height="486" alt="image" src="https://github.com/user-attachments/assets/2f125a43-95ba-4a00-aab3-200856446412" />
+
 ## 🏗️ System Scope + Docker Pattern
 
 ### 1. **pom.xml** (Compile Time - No JFrog)
