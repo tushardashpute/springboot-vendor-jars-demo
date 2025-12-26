@@ -1,16 +1,16 @@
-# Spring Boot + Vendor JARs (Actimize/PNC JFrog Demo) 🚀
+# Spring Boot + Vendor JARs (Actimize JFrog Demo) 🚀
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-green.svg)](https://spring.io)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://hub.docker.com/r/tushardashpute/springboot-vendor-demo)
 [![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://adoptium.net)
 [![Port 33333](https://img.shields.io/badge/Port-33333-yellow.svg)](http://localhost:33333)
 
-**Production demo for Actimize JARs NOT in PNC JFrog** - **System scope compile** + **Docker `lib/` runtime**.
+**Production demo for Actimize JARs NOT in JFrog** - **System scope compile** + **Docker `lib/` runtime**.
 
-## 🎯 PNC Actimize Use Case
+## 🎯 Actimize Use Case
 
 ```
-❌ Actimize JARs missing from PNC JFrog
+❌ Actimize JARs missing from JFrog
 ❌ Air-gapped Maven builds fail
 ✅ System scope in pom.xml (compile from lib/)
 ✅ Docker lib/ folder (runtime redundancy)
@@ -221,7 +221,7 @@ docker rmi springboot-vendor-demo:latest
 kind delete cluster  # if testing k8s
 ```
 
-## 🎉 PNC Actimize Ready
+## 🎉 Actimize Ready
 
 ```
 ✅ Compiles without JFrog (system scope)
@@ -236,7 +236,7 @@ kind delete cluster  # if testing k8s
 
 ***
 **⭐ Star if helpful!**  
-**Built for PNC Actimize + JFrog scenario** © 2025 Tushar Dashpute[1][2][3]
+**Built for Actimize + JFrog scenario** © 2025 Tushar Dashpute[1][2][3]
 
 [1](https://github.com/dimMaryanto93/k8s-nfs-springboot-upload)
 [2](https://img.shields.io/badge/Spring%20Boot-3.3.0-green.svg)
